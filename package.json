@@ -1,6 +1,6 @@
 {
     "name": "css-class-hunter",
-    "version": "0.0.2",
+    "version": "0.1.1",
     "description": "Lint for search unused imports",
     "repository": "git@github.com:CyberWalrus/css-class-hunter.git",
     "author": "Пахомов Андрей Николаевич <andrey.pahomov@ligastavok.ru>",

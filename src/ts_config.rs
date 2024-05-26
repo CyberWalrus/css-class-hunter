@@ -3,38 +3,67 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::{self, BufReader};
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Default)]
 #[allow(dead_code)]
 #[allow(non_snake_case)]
 struct Config {
-    compilerOptions: CompilerOptions,
+    compilerOptions: Option<CompilerOptions>,
 }
 
 #[derive(Deserialize, Debug)]
 #[allow(dead_code)]
 #[allow(non_snake_case)]
 struct CompilerOptions {
-    target: String,
-    useDefineForClassFields: bool,
-    lib: Vec<String>,
-    allowJs: bool,
-    skipLibCheck: bool,
-    esModuleInterop: bool,
-    allowSyntheticDefaultImports: bool,
-    strict: bool,
-    forceConsistentCasingInFileNames: bool,
-    module: String,
-    moduleResolution: String,
-    resolveJsonModule: bool,
-    noEmit: bool,
-    downlevelIteration: bool,
-    sourceMap: bool,
-    noImplicitAny: bool,
-    jsx: String,
-    baseUrl: String,
-    typeRoots: Vec<String>,
-    rootDirs: Vec<String>,
-    pub paths: HashMap<String, Vec<String>>,
+    target: Option<String>,
+    useDefineForClassFields: Option<bool>,
+    lib: Option<Vec<String>>,
+    allowJs: Option<bool>,
+    skipLibCheck: Option<bool>,
+    esModuleInterop: Option<bool>,
+    allowSyntheticDefaultImports: Option<bool>,
+    strict: Option<bool>,
+    forceConsistentCasingInFileNames: Option<bool>,
+    module: Option<String>,
+    moduleResolution: Option<String>,
+    resolveJsonModule: Option<bool>,
+    noEmit: Option<bool>,
+    downlevelIteration: Option<bool>,
+    sourceMap: Option<bool>,
+    noImplicitAny: Option<bool>,
+    jsx: Option<String>,
+    baseUrl: Option<String>,
+    typeRoots: Option<Vec<String>>,
+    rootDirs: Option<Vec<String>>,
+    #[serde(default)]
+    paths: HashMap<String, Vec<String>>,
+}
+
+impl Default for CompilerOptions {
+    fn default() -> Self {
+        CompilerOptions {
+            target: None,
+            useDefineForClassFields: None,
+            lib: None,
+            allowJs: None,
+            skipLibCheck: None,
+            esModuleInterop: None,
+            allowSyntheticDefaultImports: None,
+            strict: None,
+            forceConsistentCasingInFileNames: None,
+            module: None,
+            moduleResolution: None,
+            resolveJsonModule: None,
+            noEmit: None,
+            downlevelIteration: None,
+            sourceMap: None,
+            noImplicitAny: None,
+            jsx: None,
+            baseUrl: None,
+            typeRoots: None,
+            rootDirs: None,
+            paths: HashMap::new(),
+        }
+    }
 }
 
 pub fn get_paths_ts_config(path: &String) -> io::Result<HashMap<String, Vec<String>>> {
@@ -43,5 +72,6 @@ pub fn get_paths_ts_config(path: &String) -> io::Result<HashMap<String, Vec<Stri
 
     let config: Config = serde_json::from_reader(reader)?;
 
-    Ok(config.compilerOptions.paths)
+    // Вернуть paths или пустой HashMap, если compilerOptions или paths отсутствуют
+    Ok(config.compilerOptions.unwrap_or_default().paths)
 }
