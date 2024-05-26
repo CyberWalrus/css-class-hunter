@@ -28,7 +28,11 @@ pub fn visit_dirs(
                     let exports = extract_exports_from_file(&path, export_re)?;
                     // Нам нужно использовать мьютекс для доступа к общему HashMap в многопоточном контексте
                     let mut map = exports_map.lock().unwrap();
-                    map.insert(relative_path, exports);
+                    if let Some(stripped_path) = relative_path.strip_suffix(".d.ts") {
+                        let key = stripped_path.to_string();
+
+                        map.insert(key, exports);
+                    }
                 }
                 Ok(())
             }

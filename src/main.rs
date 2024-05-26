@@ -47,23 +47,26 @@ fn main() -> io::Result<()> {
     let exports_map: HashMap<String, Vec<String>> = HashMap::new();
     let exports_map = Arc::new(Mutex::new(exports_map));
 
-    let import_map: HashMap<String, Vec<String>> = HashMap::new();
+    let import_map: HashMap<String, HashMap<String, Vec<String>>> = HashMap::new();
     let import_map = Arc::new(Mutex::new(import_map));
     let export_re =
-        Regex::new(r"export\s+(?:class|interface|const|function|type|enum)\s+(\w+)").unwrap();
+        Regex::new(r"export\s+(?:declare\s+)?(?:class|interface|const|function|type|enum)\s+(\w+)")
+            .unwrap();
+    let import_re =
+        regex::Regex::new(r#"\bimport\s+(.*)\s+from\s+['"`]([^'"`]+\.scss)['"`];?"#).unwrap();
 
     extract_paths_from_file(tsconfig_file_path)?;
     visit_dirs(
         std::path::Path::new(folder_type_path),
-        Arc::clone(&exports_map), // Используем Arc::clone для клонирования `exports_map`
+        Arc::clone(&exports_map),
         &export_re,
         std::path::Path::new(folder_type_path),
     )?;
 
     visit_app_dirs(
         std::path::Path::new(folder_app_path),
-        Arc::clone(&import_map), // Используем Arc::clone для клонирования `exports_map`
-        &export_re,
+        Arc::clone(&import_map),
+        &import_re,
         std::path::Path::new(folder_app_path),
     )?;
 
