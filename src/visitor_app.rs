@@ -9,7 +9,7 @@ use std::sync::{Arc, Mutex};
 
 pub fn visit_app_dirs(
     dir: &Path,
-    exports_map: Arc<Mutex<HashMap<String, HashMap<String, Vec<String>>>>>,
+    exports_map: Arc<Mutex<HashMap<String, Vec<String>>>>,
     import_re: &Regex,
     root: &Path,
 ) -> io::Result<()> {
@@ -24,12 +24,12 @@ pub fn visit_app_dirs(
                 visit_app_dirs(&path, Arc::clone(&exports_map), import_re, root)
             } else {
                 // Обрабатываем файлы
-                if let Some(relative_path) = process_app_file(&path, root)? {
-                    let exports = extract_import_usages_from_file(&path, import_re)?;
-                    // Проверяем, пустой ли экспорт, перед добавлением в карту
-                    if !exports.is_empty() {
-                        let mut map = exports_map.lock().unwrap();
-                        map.insert(relative_path, exports);
+                if let Some(_relative_path) = process_app_file(&path, root)? {
+                    let imports = extract_import_usages_from_file(&path, import_re)?;
+                    let mut map = exports_map.lock().unwrap();
+                    for (import_path, usages) in imports {
+                        let entry = map.entry(import_path).or_insert_with(Vec::new);
+                        entry.extend(usages);
                     }
                 }
                 Ok(())

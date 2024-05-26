@@ -32,7 +32,6 @@ pub fn extract_import_usages_from_file(
 
     // Найти все импорты .scss файлов
     for cap in import_re.captures_iter(&content) {
-        // Предположим, что `cap` и` path` уже определены ранее в вашем коде
         let import_path = cap[2].to_string();
 
         // Преобразовать относительный путь импорта в полный путь
@@ -58,16 +57,12 @@ pub fn extract_import_usages_from_file(
 
         let import_name = cap[1].to_string();
 
-        println!("{:?}", import_name);
-        // Найти все классы/селектора, связанные с этим импортом в контенте файла
-        let mut usage_classes = vec![];
+        // Найти использования import_name в коде
+        let usage_re = Regex::new(&format!(r"{}\.([a-zA-Z0-9_-]+)", import_name)).unwrap();
+        let mut usage_classes = Vec::new();
 
-        // Здесь, например, можно использовать регулярное выражение для поиска конкретных селекторов/классов и т.д.
-        // Пример: для нахождения всех CSS классов:
-        let class_re = Regex::new(r"\.([a-zA-Z0-9_-]+)").unwrap();
-
-        for class_cap in class_re.captures_iter(&content) {
-            usage_classes.push(class_cap[1].to_string());
+        for usage_cap in usage_re.captures_iter(&content) {
+            usage_classes.push(usage_cap[1].to_string());
         }
 
         imports_map.insert(import_key, usage_classes);

@@ -8,6 +8,7 @@ pub struct Config {
     pub folder_app_path: String,
     pub output_file: String,
     pub output_app_file: String,
+    pub missing_entries_file: String,
     pub tsconfig_file: String,
 }
 
