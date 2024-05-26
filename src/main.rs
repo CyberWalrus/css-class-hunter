@@ -1,15 +1,13 @@
-mod config;
+mod app_config;
 mod export_processing;
 mod file_app_processing;
 mod file_processing;
 mod find_missing_entires;
-mod load_config;
+mod ts_config;
 mod visitor;
 mod visitor_app;
 
-use config::extract_paths_from_file;
 use export_processing::write_exports_to_file;
-use load_config::load_config;
 use regex::Regex;
 use std::collections::HashMap;
 use std::env;
@@ -17,10 +15,15 @@ use std::fs::File;
 use std::io;
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
+use ts_config::get_paths_ts_config;
 use visitor::visit_dirs;
 use visitor_app::visit_app_dirs;
 
 use find_missing_entires::find_missing_entires;
+
+use app_config::init_config;
+
+use crate::app_config::get_config;
 
 fn main() -> io::Result<()> {
     let args: Vec<String> = env::args().collect();
@@ -30,13 +33,12 @@ fn main() -> io::Result<()> {
     }
 
     let config_file_path = &args[1];
-    let config = match load_config(config_file_path) {
-        Ok(config) => config,
-        Err(err) => {
-            eprintln!("Error reading config file: {}", err);
-            std::process::exit(1);
-        }
-    };
+    if let Err(e) = init_config(config_file_path) {
+        eprintln!("Failed to initialize configuration: {e}");
+        std::process::exit(1);
+    }
+
+    let config = get_config().read().unwrap();
 
     let folder_type_path = &config.folder_path;
     let folder_app_path = &config.folder_app_path;
@@ -60,7 +62,7 @@ fn main() -> io::Result<()> {
     let import_re =
         regex::Regex::new(r#"\bimport\s+(.*)\s+from\s+['"`]([^'"`]+\.scss)['"`];?"#).unwrap();
 
-    extract_paths_from_file(tsconfig_file_path)?;
+    let tsconfig_paths = get_paths_ts_config(tsconfig_file_path)?;
     visit_dirs(
         std::path::Path::new(folder_type_path),
         Arc::clone(&exports_map),
@@ -73,6 +75,7 @@ fn main() -> io::Result<()> {
         Arc::clone(&import_map),
         &import_re,
         std::path::Path::new(folder_app_path),
+        &tsconfig_paths,
     )?;
     let exports_map_clone = Arc::clone(&exports_map);
     let import_map_clone = Arc::clone(&import_map);

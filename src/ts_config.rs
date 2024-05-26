@@ -1,4 +1,5 @@
 use serde::Deserialize;
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::{self, BufReader};
 
@@ -33,17 +34,14 @@ struct CompilerOptions {
     baseUrl: String,
     typeRoots: Vec<String>,
     rootDirs: Vec<String>,
-    paths: std::collections::HashMap<String, Vec<String>>,
+    pub paths: HashMap<String, Vec<String>>,
 }
 
-pub fn extract_paths_from_file(path: &String) -> io::Result<()> {
-    println!("path: {}", path);
-
+pub fn get_paths_ts_config(path: &String) -> io::Result<HashMap<String, Vec<String>>> {
     let file = File::open(path)?;
     let reader = BufReader::new(file);
 
     let config: Config = serde_json::from_reader(reader)?;
-    println!("{:?}", config.compilerOptions.paths);
 
-    Ok(())
+    Ok(config.compilerOptions.paths)
 }
