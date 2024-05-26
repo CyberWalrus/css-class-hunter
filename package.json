@@ -1,22 +1,22 @@
 {
     "name": "css-class-hunter",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Lint for search unused imports",
     "repository": "git@github.com:CyberWalrus/css-class-hunter.git",
     "author": "Пахомов Андрей Николаевич <andrey.pahomov@ligastavok.ru>",
     "homepage": "https://github.com/CyberWalrus/css-class-hunter#readme",
     "license": "MIT",
     "bin": {
-        "css-class-hunter": "./detect-platform.js"
+        "css-class-hunter": "./index.js"
     },
     "scripts": {
-        "start": "node ./detect-platform.js"
+        "start": "node ./index.js"
     },
     "files": [
         "package.json",
         "README.md",
         "LICENSE",
-        "detect-platform.js",
+        "index.js",
         "bin/"
     ],
     "dependencies": {}
