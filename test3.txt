@@ -1,4 +1,0 @@
-src/shared/ui/footer/ui/footer.module.scss:
-  jklkjhad
-src/shared/ui/tech-link/ui/tech-link.module.scss:
-  logoSpin

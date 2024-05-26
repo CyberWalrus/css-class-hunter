@@ -2,6 +2,7 @@ mod config;
 mod export_processing;
 mod file_app_processing;
 mod file_processing;
+mod find_missing_entires;
 mod load_config;
 mod visitor;
 mod visitor_app;
@@ -18,6 +19,8 @@ use std::sync::{Arc, Mutex};
 use std::time::Instant;
 use visitor::visit_dirs;
 use visitor_app::visit_app_dirs;
+
+use find_missing_entires::find_missing_entires;
 
 fn main() -> io::Result<()> {
     let args: Vec<String> = env::args().collect();
@@ -74,7 +77,7 @@ fn main() -> io::Result<()> {
     let exports_map_clone = Arc::clone(&exports_map);
     let import_map_clone = Arc::clone(&import_map);
 
-    let missing_imports = find_missing_imports(exports_map_clone, import_map_clone);
+    let missing_imports = find_missing_entires(exports_map_clone, import_map_clone);
 
     write_exports_to_file(&mut output_file, Arc::clone(&exports_map))?;
     write_exports_to_file(&mut output_file_app, Arc::clone(&import_map))?;
@@ -84,37 +87,4 @@ fn main() -> io::Result<()> {
     eprintln!("Execution time: {:?}", duration);
 
     Ok(())
-}
-
-fn find_missing_imports(
-    exports_map: Arc<Mutex<HashMap<String, Vec<String>>>>,
-    import_map: Arc<Mutex<HashMap<String, Vec<String>>>>,
-) -> Arc<Mutex<HashMap<String, Vec<String>>>> {
-    // Lock the maps and perform the comparison
-    let exports_map_locked = exports_map.lock().unwrap();
-    let import_map_locked = import_map.lock().unwrap();
-
-    let mut missing_entries: HashMap<String, Vec<String>> = HashMap::new();
-
-    for (key, export_values) in exports_map_locked.iter() {
-        // Получаем значения для данного ключа из import_map
-        if let Some(import_values) = import_map_locked.get(key) {
-            let mut diff: Vec<String> = Vec::new();
-            for export_value in export_values {
-                if !import_values.contains(export_value) {
-                    diff.push(export_value.clone());
-                }
-            }
-            if !diff.is_empty() {
-                missing_entries.insert(key.clone(), diff);
-            }
-        } else {
-            // Если ключа нет в import_map, все значения export_values добавляем в missing_entries
-            missing_entries.insert(key.clone(), export_values.clone());
-        }
-    }
-
-    let missing_entries = Arc::new(Mutex::new(missing_entries));
-
-    missing_entries
 }
