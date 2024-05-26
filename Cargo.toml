@@ -1,5 +1,5 @@
 [package]
-name = "export_extractor"
+name = "css-class-hunter"
 version = "0.1.0"
 edition = "2021"
 

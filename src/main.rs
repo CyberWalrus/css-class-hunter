@@ -13,6 +13,7 @@ use std::collections::HashMap;
 use std::env;
 use std::fs::File;
 use std::io;
+use std::process::exit;
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
 use ts_config::get_paths_ts_config;
@@ -26,16 +27,33 @@ use app_config::init_config;
 use crate::app_config::get_config;
 
 fn main() -> io::Result<()> {
+    let default_config_file = "css-class-hunter.config.json";
     let args: Vec<String> = env::args().collect();
-    if args.len() != 2 {
-        eprintln!("Usage: {} <config_file>", args[0]);
-        std::process::exit(1);
-    }
+    let config_flag_positions: Vec<usize> = args
+        .iter()
+        .enumerate()
+        .filter(|(_, arg)| *arg == "--config" || *arg == "-c")
+        .map(|(index, _)| index)
+        .collect();
 
-    let config_file_path = &args[1];
+    let config_file_path: &str = if !config_flag_positions.is_empty() {
+        let last_flag_position = *config_flag_positions.last().unwrap();
+        if last_flag_position + 1 < args.len() {
+            &args[last_flag_position + 1]
+        } else {
+            eprintln!(
+                "Ошибка: Флаг {} требует указания пути до файла",
+                args[last_flag_position]
+            );
+            std::process::exit(1);
+        }
+    } else {
+        default_config_file
+    };
+
     if let Err(e) = init_config(config_file_path) {
         eprintln!("Failed to initialize configuration: {e}");
-        std::process::exit(1);
+        exit(1);
     }
 
     let config = get_config().read().unwrap();
