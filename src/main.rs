@@ -2,18 +2,18 @@ mod config;
 mod export_processing;
 mod file_app_processing;
 mod file_processing;
+mod load_config;
 mod visitor;
 mod visitor_app;
 
 use config::extract_paths_from_file;
 use export_processing::write_exports_to_file;
+use load_config::load_config;
 use regex::Regex;
-use serde::Deserialize;
 use std::collections::HashMap;
 use std::env;
 use std::fs::File;
 use std::io;
-use std::io::BufReader;
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
 use visitor::visit_dirs;
@@ -74,21 +74,4 @@ fn main() -> io::Result<()> {
     eprintln!("Execution time: {:?}", duration);
 
     Ok(())
-}
-
-#[derive(Deserialize, Debug)]
-struct Config {
-    folder_path: String,
-    folder_app_path: String,
-    output_file: String,
-    output_app_file: String,
-    tsconfig_file: String,
-}
-
-fn load_config(file_path: &str) -> io::Result<Config> {
-    let file = File::open(file_path)?;
-    let reader = BufReader::new(file);
-    let config: Config = serde_json::from_reader(reader)?;
-
-    Ok(config)
 }
