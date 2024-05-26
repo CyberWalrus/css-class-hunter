@@ -1,0 +1,7 @@
+{
+    "folder_path": "__generated__",
+    "folder_app_path": "app",
+    "output_file": "test.txt",
+    "output_app_file": "test2.txt",
+    "tsconfig_file": "tsconfig.json"
+}

@@ -1,0 +1,7 @@
+/target
+
+/__generated__
+/app
+tsconfig.json
+test.txt
+test2.txt
