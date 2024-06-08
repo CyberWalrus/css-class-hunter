@@ -1,4 +1,3 @@
-use crate::file_processing::{extract_exports_from_file, process_file};
 use rayon::prelude::*;
 use regex::Regex;
 use std::collections::HashMap;
@@ -6,6 +5,9 @@ use std::fs;
 use std::io;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
+
+use crate::file::extract_exports_from_file::extract_exports_from_file;
+use crate::file::process_file::process_file;
 
 pub fn visit_dirs(
     dir: &Path,

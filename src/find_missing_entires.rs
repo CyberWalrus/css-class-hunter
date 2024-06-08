@@ -5,7 +5,6 @@ pub fn find_missing_entires(
     exports_map: Arc<Mutex<HashMap<String, Vec<String>>>>,
     import_map: Arc<Mutex<HashMap<String, Vec<String>>>>,
 ) -> Arc<Mutex<HashMap<String, Vec<String>>>> {
-    // Lock the maps and perform the comparison
     let exports_map_locked = exports_map.lock().unwrap();
     let import_map_locked = import_map.lock().unwrap();
 

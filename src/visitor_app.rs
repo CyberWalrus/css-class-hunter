@@ -1,4 +1,3 @@
-use crate::file_app_processing::{extract_import_usages_from_file, process_app_file};
 use rayon::prelude::*;
 use regex::Regex;
 use std::collections::HashMap;
@@ -6,6 +5,9 @@ use std::fs;
 use std::io;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
+
+use crate::file::extract_import_usages_from_file::extract_import_usages_from_file;
+use crate::file::process_app_file::process_app_file;
 
 pub fn visit_app_dirs(
     dir: &Path,
