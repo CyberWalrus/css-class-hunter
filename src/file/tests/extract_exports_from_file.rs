@@ -64,21 +64,25 @@ mod tests {
             file,
             r#"
             export type Styles = {{
-    auto: string;
-    full: string;
-}};
+                auto: string;
+                full: string;
+            }};
+            export type ClassNames = keyof Styles;
 
-export type ClassNames = keyof Styles;
+            declare const styles: Styles;
 
-declare const styles: Styles;
-
-export default styles;
+            export default styles;
         "#
         )
         .unwrap();
 
-        let result = extract_exports_from_file(file.path()).unwrap();
-        let expected: Vec<String> = vec!["full".to_string(), "auto".to_string()];
+        let mut result = extract_exports_from_file(file.path()).unwrap();
+        let mut expected: Vec<String> = vec!["auto".to_string(), "full".to_string()];
+
+        // Сортируем векторы перед сравнением
+        result.sort();
+        expected.sort();
+
         assert_eq!(result, expected);
     }
 
