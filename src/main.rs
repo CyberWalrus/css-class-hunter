@@ -7,7 +7,6 @@ mod visitor;
 mod visitor_app;
 
 use export_processing::write_exports_to_file;
-use regex::Regex;
 use std::collections::HashMap;
 use std::env;
 use std::fs::File;
@@ -73,9 +72,6 @@ fn main() -> io::Result<()> {
 
     let import_map: HashMap<String, Vec<String>> = HashMap::new();
     let import_map = Arc::new(Mutex::new(import_map));
-    let export_re =
-        Regex::new(r"export\s+(?:declare\s+)?(?:class|interface|const|function|type|enum)\s+(\w+)")
-            .unwrap();
     let import_re =
         regex::Regex::new(r#"\bimport\s+(.*)\s+from\s+['"`]([^'"`]+\.scss)['"`];?"#).unwrap();
 
@@ -83,7 +79,6 @@ fn main() -> io::Result<()> {
     visit_dirs(
         std::path::Path::new(folder_type_path),
         Arc::clone(&exports_map),
-        &export_re,
         std::path::Path::new(folder_type_path),
     )?;
 

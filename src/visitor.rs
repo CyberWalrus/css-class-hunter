@@ -1,5 +1,4 @@
 use rayon::prelude::*;
-use regex::Regex;
 use std::collections::HashMap;
 use std::fs;
 use std::io;
@@ -12,7 +11,6 @@ use crate::file::process_file::process_file;
 pub fn visit_dirs(
     dir: &Path,
     exports_map: Arc<Mutex<HashMap<String, Vec<String>>>>,
-    export_re: &Regex,
     root: &Path,
 ) -> io::Result<()> {
     if dir.is_dir() {
@@ -23,11 +21,11 @@ pub fn visit_dirs(
             let path = entry.path();
             if path.is_dir() {
                 // Рекурсивно вызываем себя для директорий
-                visit_dirs(&path, Arc::clone(&exports_map), export_re, root)
+                visit_dirs(&path, Arc::clone(&exports_map), root)
             } else {
                 // Обрабатываем файлы
                 if let Some(relative_path) = process_file(&path, root)? {
-                    let exports = extract_exports_from_file(&path, export_re)?;
+                    let exports = extract_exports_from_file(&path)?;
                     // Нам нужно использовать мьютекс для доступа к общему HashMap в многопоточном контексте
                     let mut map = exports_map.lock().unwrap();
                     if let Some(stripped_path) = relative_path.strip_suffix(".d.ts") {

@@ -5,6 +5,8 @@ use std::env::current_dir;
 use std::fs::File;
 use std::io::{self, Read};
 use std::path::Path;
+use std::thread::sleep;
+use std::time::Duration;
 
 use crate::app_config::get_config;
 
@@ -15,9 +17,35 @@ pub fn extract_import_usages_from_file(
     import_re: &Regex,
     tsconfig_paths: &HashMap<String, Vec<String>>,
 ) -> io::Result<HashMap<String, Vec<String>>> {
+    // Открытие файла с тремя попытками
     let mut file = File::open(path)?;
     let mut content = String::new();
-    file.read_to_string(&mut content)?;
+
+    let mut attempts = 3;
+    while attempts > 0 {
+        match file.read_to_string(&mut content) {
+            Ok(_) => break,
+            Err(e) if attempts > 1 => {
+                eprintln!(
+                    "Ошибка при чтении файла {:?}, попытка {}; ошибка: {}",
+                    path,
+                    4 - attempts,
+                    e
+                );
+                attempts -= 1;
+                sleep(Duration::from_millis(100));
+            }
+            Err(e) => {
+                return Err(io::Error::new(
+                    io::ErrorKind::Other,
+                    format!(
+                        "Не удалось прочитать файл {:?} после 3 попыток; ошибка: {}",
+                        path, e
+                    ),
+                ));
+            }
+        }
+    }
 
     let mut imports_map: HashMap<String, Vec<String>> = HashMap::new();
 
